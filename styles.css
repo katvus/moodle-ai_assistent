@@ -1,0 +1,19 @@
+#footer{
+   display: flex;
+   align-items: flex-end;
+}
+
+#footer textarea{
+    flex-grow: 1;
+}
+
+#footer button{
+    background-image: url([[pix:block_aiassistent|send]]);
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+    border: none;
+    width: 2rem;
+    height: 2rem;
+    padding: 0.5rem;
+}

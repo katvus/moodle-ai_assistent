@@ -15,21 +15,36 @@
 // along with Moodle.  If not, see <https://www.gnu.org/licenses/>.
 
 /**
- * Plugin strings are defined here.
+ * Code to be executed after the plugin's database scheme has been installed is defined here.
  *
  * @package     block_aiassistent
- * @category    string
+ * @category    upgrade
  * @copyright   2025 Ekaterina Vasileva <kat.vus8@gmail.com>
  * @license     https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-defined('MOODLE_INTERNAL') || die();
+ $capabilities = array(
 
-$string['pluginname'] = 'AI Assistent';
-$string['aiassistent:addinstance'] = 'Add an AI Assistent block';
-$string['aiassistent:myaddinstance'] = 'Add an AI Assistent block to my moodle';
-$string['addtext'] = 'Input text';
-$string['adminpageheading'] = 'AI assistent settings';
-$string['pluginheading'] = "Heading";
+    'block/aiassistent:myaddinstance' => array(
+        'captype' => 'write',
+        'contextlevel' => CONTEXT_SYSTEM,
+        'archetypes' => array(
+            'user' => CAP_ALLOW
+        ),
 
+        'clonepermissionsfrom' => 'moodle/my:manageblocks'
+    ),
 
+    'block/aiassistent:addinstance' => array(
+        'riskbitmask' => RISK_SPAM | RISK_XSS,
+
+        'captype' => 'write',
+        'contextlevel' => CONTEXT_BLOCK,
+        'archetypes' => array(
+            'editingteacher' => CAP_ALLOW,
+            'manager' => CAP_ALLOW
+        ),
+
+        'clonepermissionsfrom' => 'moodle/site:manageblocks'
+    ),
+);

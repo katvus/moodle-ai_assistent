@@ -22,77 +22,40 @@
  * @license     https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class block_aiassistent extends block_base {
-
-    /**
-     * Initializes class member variables.
-     */
     public function init() {
-        // Needed by Moodle to differentiate between blocks.
         $this->title = get_string('pluginname', 'block_aiassistent');
     }
-
-    /**
-     * Returns the block contents.
-     *
-     * @return stdClass The block contents.
-     */
     public function get_content() {
+        global $OUTPUT;
 
-        if ($this->content !== null) {
-            return $this->content;
-        }
-
-        if (empty($this->instance)) {
-            $this->content = '';
-            return $this->content;
-        }
+        if ($this->content !== null) return $this->content;
 
         $this->content = new stdClass();
-        $this->content->items = [];
-        $this->content->icons = [];
-        $this->content->footer = '';
-
-        if (!empty($this->config->text)) {
-            $this->content->text = $this->config->text;
-        } else {
-            $text = 'Please define the content text in /blocks/aiassistent/block_aiassistent.php.';
-            $this->content->text = $text;
-        }
-
+        $this->content->text = "Working!";
+        $this->content->footer = $OUTPUT->render_from_template('block_aiassistent/footer', '');
         return $this->content;
     }
 
-    /**
-     * Defines configuration data.
-     *
-     * The function is called immediately after init().
-     */
     public function specialization() {
 
         // Load user defined title and make sure it's never empty.
         if (empty($this->config->title)) {
-            $this->title = get_string('pluginname', 'block_aiassistent');
+            $this->title = get_config('block_aiassistent', 'pluginheading');
+            //$this->title = get_string('pluginname', 'block_aiassistent');
         } else {
             $this->title = $this->config->title;
         }
     }
 
-    /**
-     * Enables global configuration of the block in settings.php.
-     *
-     * @return bool True if the global configuration is enabled.
-     */
     public function has_config() {
         return true;
     }
 
-    /**
-     * Sets the applicable formats for the block.
-     *
-     * @return string[] Array of pages and permissions.
-     */
     public function applicable_formats() {
-        return [
-        ];
+        return ['course-view' => true];
     }
+
+    public function instance_allow_multiple() { return false; }
+    
+    public function get_aria_role() { return 'complementary'; }
 }

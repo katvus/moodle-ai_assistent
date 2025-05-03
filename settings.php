@@ -26,10 +26,15 @@
 defined('MOODLE_INTERNAL') || die();
 
 if ($hassiteconfig) {
-    $settings = new admin_settingpage('block_aiassistent_settings', new lang_string('pluginname', 'block_aiassistent'));
+    $settings = new admin_settingpage('block_aiassistent_settings', get_string('adminpageheading', 'block_aiassistent'));
 
     // phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedIf
     if ($ADMIN->fulltree) {
-        // TO-DO: Define actual plugin settings page and add it to the tree - {@link https://docs.moodle.org/dev/Admin_settings}.
+        $settings->add(new admin_setting_configtext(
+            'block_aiassistent/pluginheading', 
+            get_string('pluginheading', 'block_aiassistent'),
+            get_string('pluginheading', 'block_aiassistent'),
+            get_string('pluginname', 'block_aiassistent')
+        ));
     }
 }
