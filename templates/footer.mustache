@@ -15,7 +15,7 @@
     along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 }}
 {{!
-    @template block_aiassistent/footer
+    @template block_aiassistant/footer
 
     Template purpose and description.
 
@@ -34,6 +34,6 @@
 }}
 
 <div id = 'footer'>
-    <textarea name='input_text' placeholder = '{{#str}}addtext, block_aiassistent{{/str}}'></textarea> 
-    <button type = 'submit'></button>
+    <textarea name='input_text' data-region = 'input' placeholder = '{{#str}}addtext, block_aiassistant{{/str}}'></textarea> 
+    <button type = 'submit' data-action = 'submit'></button>
 </div>
