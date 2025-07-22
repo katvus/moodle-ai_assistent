@@ -17,15 +17,15 @@
 /**
  * Plugin version and other meta-data are defined here.
  *
- * @package     block_aiassistent
+ * @package     block_aiassistant
  * @copyright   2025 Ekaterina Vasileva <kat.vus8@gmail.com>
  * @license     https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 defined('MOODLE_INTERNAL') || die();
 
-$plugin->component = 'block_aiassistent';
-$plugin->release = '0.1.0';
-$plugin->version = 2025041600;
+$plugin->component = 'block_aiassistant';
+//$plugin->release = '0.1';
+$plugin->version = 2025062206;
 $plugin->requires = 2022112800;
-$plugin->maturity = MATURITY_ALPHA;
+$plugin->maturity = MATURITY_STABLE;

@@ -17,7 +17,7 @@
 /**
  * Code to be executed after the plugin's database scheme has been installed is defined here.
  *
- * @package     block_aiassistent
+ * @package     block_aiassistant
  * @category    upgrade
  * @copyright   2025 Ekaterina Vasileva <kat.vus8@gmail.com>
  * @license     https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
@@ -25,7 +25,7 @@
 
  $capabilities = array(
 
-    'block/aiassistent:myaddinstance' => array(
+    'block/aiassistant:myaddinstance' => array(
         'captype' => 'write',
         'contextlevel' => CONTEXT_SYSTEM,
         'archetypes' => array(
@@ -35,7 +35,7 @@
         'clonepermissionsfrom' => 'moodle/my:manageblocks'
     ),
 
-    'block/aiassistent:addinstance' => array(
+    'block/aiassistant:addinstance' => array(
         'riskbitmask' => RISK_SPAM | RISK_XSS,
 
         'captype' => 'write',

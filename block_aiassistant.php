@@ -15,24 +15,39 @@
 // along with Moodle.  If not, see <https://www.gnu.org/licenses/>.
 
 /**
- * Block aiassistent is defined here.
+ * Block aiassistant is defined here.
  *
- * @package     block_aiassistent
+ * @package     block_aiassistant
  * @copyright   2025 Ekaterina Vasileva <kat.vus8@gmail.com>
  * @license     https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class block_aiassistent extends block_base {
+
+//require_once (__DIR__ . '/lib.php'); //???
+
+class block_aiassistant extends block_base {
     public function init() {
-        $this->title = get_string('pluginname', 'block_aiassistent');
+        $this->title = get_string('pluginname', 'block_aiassistant');
     }
     public function get_content() {
         global $OUTPUT;
+        global $CFG;
 
         if ($this->content !== null) return $this->content;
 
         $this->content = new stdClass();
-        $this->content->text = "Working!";
-        $this->content->footer = $OUTPUT->render_from_template('block_aiassistent/footer', '');
+        //$array = connect_api('How are you');
+        $this->page->requires->js_call_amd('block_aiassistant/chat', 'init', '');
+        $this->content->text = '<div class="chat" data-role="chat"></div>';
+        $apikey = get_config('block_aiassistant', 'apikey');
+        $catalog_id = get_config('block_aiassistant', 'catalogid');
+        //$ai = new aiassistant($apikey, $catalog_id);
+        // if (get_config('block_aiassistant', 'apikey') == '' or get_config('block_aiassistant', 'catalogid') == ''){
+        //     $this->content->text = get_string('emptyfield', 'block_aiassistant');
+        // }
+        // else{
+        //     $this->content->text = '<pre>' . print_r($array, true) . '</pre>';
+        // }
+        $this->content->footer = $OUTPUT->render_from_template('block_aiassistant/footer', '');
         return $this->content;
     }
 
@@ -40,8 +55,8 @@ class block_aiassistent extends block_base {
 
         // Load user defined title and make sure it's never empty.
         if (empty($this->config->title)) {
-            $this->title = get_config('block_aiassistent', 'pluginheading');
-            //$this->title = get_string('pluginname', 'block_aiassistent');
+            $this->title = get_config('block_aiassistant', 'pluginheading');
+            //$this->title = get_string('pluginname', 'block_aiassistant');
         } else {
             $this->title = $this->config->title;
         }

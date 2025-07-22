@@ -17,7 +17,7 @@
 /**
  * Plugin administration pages are defined here.
  *
- * @package     block_aiassistent
+ * @package     block_aiassistant
  * @category    admin
  * @copyright   2025 Ekaterina Vasileva <kat.vus8@gmail.com>
  * @license     https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
@@ -26,15 +26,31 @@
 defined('MOODLE_INTERNAL') || die();
 
 if ($hassiteconfig) {
-    $settings = new admin_settingpage('block_aiassistent_settings', get_string('adminpageheading', 'block_aiassistent'));
+    $settings = new admin_settingpage('block_aiassistant_settings', get_string('adminpageheading', 'block_aiassistant'));
 
     // phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedIf
     if ($ADMIN->fulltree) {
         $settings->add(new admin_setting_configtext(
-            'block_aiassistent/pluginheading', 
-            get_string('pluginheading', 'block_aiassistent'),
-            get_string('pluginheading', 'block_aiassistent'),
-            get_string('pluginname', 'block_aiassistent')
+            'block_aiassistant/pluginheading', 
+            get_string('pluginheading', 'block_aiassistant'),
+            get_string('pluginheading', 'block_aiassistant'),
+            get_string('pluginname', 'block_aiassistant')
+        ));
+
+        $settings->add(new admin_setting_configtext(
+            'block_aiassistant/apikey', 
+            get_string('apikey', 'block_aiassistant'),
+            get_string('apikeydesc', 'block_aiassistant'),
+            '',
+            PARAM_TEXT
+        ));
+
+        $settings->add(new admin_setting_configtext(
+            'block_aiassistant/catalogid', 
+            get_string('catalogid', 'block_aiassistant'),
+            get_string('catalogiddesc', 'block_aiassistant'),
+            '',
+            PARAM_TEXT
         ));
     }
 }

@@ -17,7 +17,7 @@
 /**
  * Code to be executed after the plugin's database scheme has been installed is defined here.
  *
- * @package     block_aiassistent
+ * @package     block_aiassistant
  * @category    upgrade
  * @copyright   2025 Ekaterina Vasileva <kat.vus8@gmail.com>
  * @license     https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
@@ -26,7 +26,7 @@
 /**
  * Custom code to be run on installing the plugin.
  */
-function xmldb_block_aiassistent_install() {
+function xmldb_block_aiassistant_install() {
 
     return true;
 }
