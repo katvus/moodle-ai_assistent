@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<XMLDB PATH="/blocks/aiassistant/db" VERSION="2025080800" COMMENT="XMLDB file for blocks/aiassistant">
+  <TABLES>
+    <TABLE NAME="block_aiassistant_messages" COMMENT="Store user question and ai answer">
+        <FIELDS>
+            <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true" COMMENT="Primary key"/>
+            <FIELD NAME="session_id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="Current conversation identifier"/>
+            <FIELD NAME="question" TYPE="text" NOTNULL="true" SEQUENCE="false" COMMENT="The text sent by user"/>
+            <FIELD NAME="answer" TYPE="text" NOTNULL="true" SEQUENCE="false" COMMENT="The text sent by ai assistant"/>
+            <FIELD NAME="question_time" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="Time when the user sent the message"/>
+            <FIELD NAME="answer_time" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="Time when the ai assistant sent the message"/>
+        </FIELDS>
+        <KEYS>
+            <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+            <KEY NAME="session" TYPE="foreign" FIELDS="session_id" REFTABLE="block_aiassistant_session" REFFIELDS="id"/>
+        </KEYS>
+    </TABLE>
+
+    <TABLE NAME="block_aiassistant_session" COMMENT="Store information about session">
+          <FIELDS>
+            <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+            <FIELD NAME="user_id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
+            <FIELD NAME="context_id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
+            <FIELD NAME="status" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" COMMENT="0 complete, 1 active"/>
+          </FIELDS>
+          <KEYS>
+            <KEY NAME="primary" TYPE="primary" FIELDS="id" />
+            <KEY NAME="user" TYPE="foreign" FIELDS="user_id" REFTABLE="user" REFFIELDS="id"/>
+            <KEY NAME="context" TYPE="foreign" FIELDS="context_id" REFTABLE="context" REFFIELDS="id"/>
+          </KEYS>
+        </TABLE>
+  </TABLES>
+  </XMLDB>

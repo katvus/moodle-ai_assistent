@@ -22,15 +22,18 @@
  * @copyright   2025 Ekaterina Vasileva <kat.vus8@gmail.com>
  * @license     https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-
+namespace block_aiassistant;
 defined('MOODLE_INTERNAL') || die();
 
 use moodle_exception;
+require_once($CFG->libdir . '/filelib.php');
 
 class aiassistant{
     private $apikey;
     private $catalog_id;
     private $data;
+    private int $history_limit = 10;
+
     function __construct($apikey, $catalog_id, $messages = [])
     {
         $this->apikey = $apikey;
@@ -48,21 +51,15 @@ class aiassistant{
             'messages' => $messages,
         ];
     }
-    
-    function get_last_message(){
-        return $this->data['messages'][array_key_last($this->data['messages'])]['text'];
+
+    function get_history_limit(){
+        return $this->history_limit;
     }
 
-    function set_last_message($text){
-        array_push($this->data['messages'],
-            [
-                'role' => 'user',
-                'text' => $text
-            ]
-        );
-    }
-
-    function make_request(){
+    function make_request($messages){
+        $this->data['messages'] = $messages;
+        error_log("messages text " . $messages[0]['text']);
+        error_log("ai assistant question:". print_r($this->data, true));
         $curl = new \curl();
         $curl->setHeader([
             'Authorization: Api-Key ' . $this->apikey,
@@ -89,8 +86,10 @@ class aiassistant{
             null, "Code: $httpcode, Response: $response");
         }
         else{
-            $answer = json_decode($response)['result']['alternatives']['message'];
+            $answer = json_decode($response, true)['result']['alternatives'][0]['message'];
+            error_log("ai assistant answer:". print_r(json_decode($response, true), true));
             array_push($this->data['messages'], $answer);
+            return $answer;
         }
     }
 

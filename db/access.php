@@ -47,4 +47,12 @@
 
         'clonepermissionsfrom' => 'moodle/site:manageblocks'
     ),
+
+    'block/aiassistant:ownaction' => [
+        'captype' => 'write',
+        'contextlevel' => CONTEXT_USER,
+        'archetypes' => [
+            'user' => CAP_ALLOW,
+        ],
+    ],
 );

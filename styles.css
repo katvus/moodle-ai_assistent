@@ -1,13 +1,13 @@
-#footer{
+.footer{
    display: flex;
    align-items: flex-end;
 }
 
-#footer textarea{
+.footer textarea{
     flex-grow: 1;
 }
 
-#footer button{
+.footer button{
     background-image: url([[pix:block_aiassistant|send]]);
     background-size: contain;
     background-repeat: no-repeat;

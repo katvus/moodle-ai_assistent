@@ -30,10 +30,12 @@
 
     Example context (json):
     {
+    'instance' => $instance,
+    'user' => $user
     }
 }}
 
-<div id = 'footer'>
+<div class = 'footer' id = 'footer-{{instance}}-{{user}}' data-instance-id= {{instance}}>
     <textarea name='input_text' data-region = 'input' placeholder = '{{#str}}addtext, block_aiassistant{{/str}}'></textarea> 
     <button type = 'submit' data-action = 'submit'></button>
 </div>

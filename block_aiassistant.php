@@ -22,7 +22,6 @@
  * @license     https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-//require_once (__DIR__ . '/lib.php'); //???
 
 class block_aiassistant extends block_base {
     public function init() {
@@ -30,24 +29,34 @@ class block_aiassistant extends block_base {
     }
     public function get_content() {
         global $OUTPUT;
-        global $CFG;
+        global $USER;
 
         if ($this->content !== null) return $this->content;
 
         $this->content = new stdClass();
-        //$array = connect_api('How are you');
-        $this->page->requires->js_call_amd('block_aiassistant/chat', 'init', '');
-        $this->content->text = '<div class="chat" data-role="chat"></div>';
-        $apikey = get_config('block_aiassistant', 'apikey');
-        $catalog_id = get_config('block_aiassistant', 'catalogid');
-        //$ai = new aiassistant($apikey, $catalog_id);
-        // if (get_config('block_aiassistant', 'apikey') == '' or get_config('block_aiassistant', 'catalogid') == ''){
-        //     $this->content->text = get_string('emptyfield', 'block_aiassistant');
-        // }
-        // else{
-        //     $this->content->text = '<pre>' . print_r($array, true) . '</pre>';
-        // }
-        $this->content->footer = $OUTPUT->render_from_template('block_aiassistant/footer', '');
+
+        //error_log("test where it seen");
+
+        if (get_config('block_aiassistant', 'apikey') == '' or get_config('block_aiassistant', 'catalogid') == ''){
+            $this->content->text = get_string('emptyfield', 'block_aiassistant');
+        }
+        else {
+            $this->page->requires->js_call_amd('block_aiassistant/chat', 'init', ['instanceid' => $this->instance->id]);
+            $this->content->text = html_writer::div(
+                '', 
+                'chat', 
+                [
+                    'data-role' => 'chat',
+                    'id' => 'chat-' . $this->instance->id . '-' . $USER->id,
+                    'data-user-id' => $USER->id,
+                    'data-instance-id' => $this->instance->id
+                ]
+            );
+            $this->content->footer = $OUTPUT->render_from_template('block_aiassistant/footer', [
+                'instance' => $this->instance->id,
+                'user' => $USER->id
+            ]);
+        }
         return $this->content;
     }
 
