@@ -1,5 +1,7 @@
 import {renderForPromise, runTemplateJS} from 'core/templates';
 import {requestForAssistant} from './request';
+import {getSession} from './session';
+import {loadHistory} from './history';
 
 export const init = (instanceid) => {
     // eslint-disable-next-line no-console
@@ -8,24 +10,42 @@ export const init = (instanceid) => {
     const submitButton = parent.querySelector('[data-action="submit"]');
     const textarea = parent.querySelector('[data-region="input"]');
     const chat = document.querySelector(`[data-role="chat"][data-instance-id="${instanceid}"]`);
-    let session = 15;
+    const newChatButton = document.querySelector(`[data-action="new-chat"][data-instance-id="${instanceid}"]`);
 
-    // eslint-disable-next-line no-console
-    console.log({submitButton, textarea});
+    let session = null;
+    const promise = getSession();
+    promise.done(function(sessionInfo) {
+        session = sessionInfo.sessionid;
+        // eslint-disable-next-line no-console
+        console.log("currentSession:", sessionInfo);
+        if (sessionInfo.isNew == false) {
+            const promiseHistory = loadHistory(sessionInfo.sessionid);
+            promiseHistory.done(function(history) {
+                addDialogue(history, chat);
+            }).fail(function(error) {
+                // eslint-disable-next-line no-console
+                console.log("error", error);
+            });
+        }
+    }).fail(function(error) {
+        // eslint-disable-next-line no-console
+        console.log("error", error);
+    });
+
     submitButton.addEventListener('click', () => {
         if (textarea) {
             const text = textarea.value.trim();
             if (text !== '') {
                 const date = new Date();
                 const time = Math.floor(date.getTime() / 1000);
-                addMessage(text, 'user', date, chat);
+                addMessage('user', text, date, chat);
                 textarea.value = '';
                 const promise = requestForAssistant(text, time, session);
                 promise.done(function(response) {
                     if (response.status == "success") {
                         // eslint-disable-next-line no-console
                         console.log("answer:", response.answer);
-                        addMessage(response.answer, 'assistant', new Date(response.answertime * 1000), chat);
+                        addMessage('assistant', response.answer, new Date(response.answertime * 1000), chat);
                     } else {
                         // eslint-disable-next-line no-console
                         console.log("error:", response.message);
@@ -42,15 +62,28 @@ export const init = (instanceid) => {
             console.error('Textarea not found!');
         }
     });
+
+    newChatButton.addEventListener('click', () => {
+        chat.textContent = '';
+        const promise = getSession(true);
+        promise.done(function(sessionInfo) {
+            session = sessionInfo.sessionid;
+            // eslint-disable-next-line no-console
+            console.log("currentSession:", sessionInfo);
+        }).fail(function(error) {
+            // eslint-disable-next-line no-console
+            console.log("error", error);
+        });
+    });
 };
 /**
  * Add message
- * @param {message} text
- * @param {*user or assistant} role
+ * @param {'user' | 'assistant'} role
+ * @param {string} text
  * @param {Data} time
- * @param {a message is added here} chat
+ * @param {*} chat a message is added here
  */
-async function addMessage(text, role, time, chat) {
+async function addMessage(role, text, time, chat) {
     const {html, js} = await renderForPromise('block_aiassistant/messages', {
             role: role,
             text: text,
@@ -60,5 +93,16 @@ async function addMessage(text, role, time, chat) {
     chat.scrollTop = chat.scrollHeight;
     if (js) {
         runTemplateJS(js);
+    }
+}
+
+/**
+ * Add message
+ * @param {Array.<[string,string,number]>} messages
+ * @param {*} chat a message is added here
+ */
+async function addDialogue(messages, chat) {
+    for (const message of messages) {
+        addMessage(message.role, message.text, new Date(message.time * 1000), chat);
     }
 }

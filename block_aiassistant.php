@@ -35,14 +35,15 @@ class block_aiassistant extends block_base {
 
         $this->content = new stdClass();
 
-        //error_log("test where it seen");
-
         if (get_config('block_aiassistant', 'apikey') == '' or get_config('block_aiassistant', 'catalogid') == ''){
             $this->content->text = get_string('emptyfield', 'block_aiassistant');
         }
         else {
             $this->page->requires->js_call_amd('block_aiassistant/chat', 'init', ['instanceid' => $this->instance->id]);
-            $this->content->text = html_writer::div(
+            $this->content->text = html_writer::tag('button', get_string('newchat', 'block_aiassistant'), 
+            ['type' => 'button', 'data-action' =>'new-chat', 'data-instance-id' => $this->instance->id]);
+
+            $this->content->text .= html_writer::div(
                 '', 
                 'chat', 
                 [

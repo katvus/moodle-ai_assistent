@@ -34,7 +34,7 @@ $string['apikeydesc'] = 'You can generate API key in Yandex service account';
 $string['catalogid'] = 'Catalog ID';
 $string['catalogiddesc'] = 'ID of folder where service is deployed';
 $string['emptyfield'] = 'Value of API key or Catalog ID don\'t set.';
-$string['pluginheading'] = "Heading";
+$string['errormessage'] = 'An error occured while processing the request. Please try again later.';
+$string['newchat'] = 'New chat';
+$string['pluginheading'] = 'Heading';
 $string['pluginname'] = 'AI assistant';
-
-
