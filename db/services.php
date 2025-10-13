@@ -20,5 +20,12 @@ $functions = [
         'description' => 'Get history of session',
         'type' => 'read',
         'ajax' => true
+    ],
+    'block_aiassistant_check_status' => [
+        'classname' => 'block_aiassistant\external\check_status',
+        'methodname' => 'execute',
+        'description' => 'Checking if request has been completed',
+        'type' => 'read',
+        'ajax' => true
     ]
 ];

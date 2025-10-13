@@ -32,8 +32,6 @@ use core_external\external_function_parameters;
 use core_external\external_value;
 use core_external\external_single_structure;
 
-use block_aiassistant\aiassistant;
-
 use \moodle_exception;
 
 class api extends external_api {
@@ -46,7 +44,7 @@ class api extends external_api {
     }
 
     public static function execute($question, $questiontime, $sessionid) {
-        global $DB, $USER, $OUTPUT;
+        global $DB, $USER;
 
         $params = self::validate_parameters(self::execute_parameters(), [
             'question' => $question,
@@ -58,71 +56,51 @@ class api extends external_api {
         self::validate_context($context);
         require_capability('block/aiassistant:ownaction', $context);
 
-        $apikey = get_config('block_aiassistant', 'apikey');
-        $catalog_id = get_config('block_aiassistant', 'catalogid');
-        $ai = new aiassistant($apikey, $catalog_id);
-        $message = [];
-
         try {
-            $history_from_db = $DB->get_records(
-                "block_aiassistant_messages", 
-                ['session_id' => $sessionid],
-                'question_time DESC',
-                'id, question, answer',
-                0,
-                $ai->get_history_limit()
-            );
-            $history = array_reverse($history_from_db);
-            foreach ($history as $record){
-                array_push($message, 
-                ['role' => 'user', 'text' => $record->question], 
-                ['role' => 'assistant', 'text' => $record->answer] 
-                );
+            $today_start = (new \DateTime('today'))->getTimestamp();
+            $user_request_limit = get_config('block_aiassistant', 'userlimit');
+            $user_id = ($DB->get_record("block_aiassistant_session", 
+            ['id' => $params["sessionid"]], 'user_id'))->user_id;
+            $sql = 'SELECT COUNT(*)
+            FROM {block_aiassistant_messages} messages
+            JOIN {block_aiassistant_session} session
+            ON session.id = messages.session_id
+            WHERE session.user_id = :user_id
+            AND messages.question_time >= :today_start';
+            $count = $DB->count_records_sql($sql, [
+                'user_id' => $user_id,
+                'today_start' => $today_start
+            ]);
+            if ($count >= $user_request_limit){
+                return [
+                    'status' => 'request_limit'
+                ];
             }
-            array_push($message, ['role' => 'user', 'text' => $question]);
-            $result = $ai->make_request($message);
-            // $notification = html_writer::div(
-            //     $result,
-            //     'alert alert-danger alert-block fade in' // Bootstrap-классы Moodle
-            // );
-            // $this->content->text .= $notification;
-            $time = new \DateTime();
-            $answertime =  $time->getTimestamp();
 
             $message_data = [
-                'session_id' => $sessionid,
-                'question' => $question,
-                'answer' => $result['text'],
-                'question_time' => $questiontime,
-                'answer_time' => $answertime
+                'session_id' => $params['sessionid'],
+                'question' => $params['question'],
+                'question_time' => $params['questiontime'],
+                'status' => 'queue'
             ];
-            $DB->insert_record("block_aiassistant_messages", $message_data);
+
+            $id = $DB->insert_record("block_aiassistant_messages", $message_data);
             return [
-                'status' => 'success',
-                'answer' => $result['text'],
-                'answertime' => $answertime
+                'status' => 'queue',
+                'id' => $id
             ];
         } catch (\dml_exception $e) {
             error_log("DB error: " . $e->getMessage());
             return [
-                'status' => 'error',
-                'message' => $e->getMessage()
+                'status' => 'error'
             ];
-        } catch (\moodle_exception $e) {
-            return [
-                'status' => 'error',
-                'message' => $e->getMessage()
-            ];
-        }
-
+        } 
     }
 
     public static function execute_returns() {
         return new external_single_structure([
             'status' => new external_value(PARAM_TEXT, 'Status of answer'),
-            'message' => new external_value(PARAM_TEXT, 'Status of answer', VALUE_OPTIONAL),
-            'answer' => new external_value(PARAM_TEXT, 'AI answer', VALUE_OPTIONAL),
-            'answertime' => new external_value(PARAM_INT, 'Time of the answer', VALUE_OPTIONAL)
+            'id' => new external_value(PARAM_INT, 'ID in table', VALUE_OPTIONAL),
         ]);
     }
 }

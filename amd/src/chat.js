@@ -1,5 +1,5 @@
 import {renderForPromise, runTemplateJS} from 'core/templates';
-import {requestForAssistant} from './request';
+import {requestForAssistant, checkStatus} from './request';
 import {getSession} from './session';
 import {loadHistory} from './history';
 
@@ -36,24 +36,38 @@ export const init = (instanceid) => {
         if (textarea) {
             const text = textarea.value.trim();
             if (text !== '') {
-                const date = new Date();
-                const time = Math.floor(date.getTime() / 1000);
-                addMessage('user', text, date, chat);
-                textarea.value = '';
-                const promise = requestForAssistant(text, time, session);
-                promise.done(function(response) {
-                    if (response.status == "success") {
-                        // eslint-disable-next-line no-console
-                        console.log("answer:", response.answer);
-                        addMessage('assistant', response.answer, new Date(response.answertime * 1000), chat);
-                    } else {
-                        // eslint-disable-next-line no-console
-                        console.log("error:", response.message);
-                    }
-                }).fail(function(fail) {
-                    // eslint-disable-next-line no-console
-                    console.log("error", fail);
-                });
+                const savedDate = localStorage.getItem('savedDate');
+                const currentDate = new Date().toDateString();
+                if (!savedDate || savedDate !== currentDate) {
+                    const date = new Date();
+                    const time = Math.floor(date.getTime() / 1000);
+                    addMessage('user', text, date, chat);
+                    textarea.value = '';
+                    chat.insertAdjacentHTML('beforeend',
+                        `<div id="request-loading" class="loading-indicator"></div>`
+                    );
+                    const loadingIndicator = chat.querySelector("#request-loading");
+                    sendQuestion(text, time, session)
+                    .then(response => {
+                        loadingIndicator.remove();
+                        if (response.status === 'success') {
+                            addMessage('assistant', response.answer, new Date(response.answertime * 1000), chat);
+                        }
+                        else if (response.status === 'request_limit') {
+                            const today = new Date().toDateString();
+                            localStorage.setItem('savedDate', today);
+                            addMessage('assistant', 'You have send too many requests today. We are waiting for you tomorrow.',
+                                new Date(), chat);
+                        }
+                    })
+                    .catch(() => {
+                        loadingIndicator.remove();
+                        addMessage('assistant', 'Sorry, something went wrong. Please try again.', new Date(), chat);
+                    });
+                } else {
+                    addMessage('assistant', 'You have send too many requests today. We are waiting for you tomorrow.',
+                        new Date(), chat);
+                }
             } else {
                 // Message for user: The message shouldn't be empty
             }
@@ -105,4 +119,63 @@ async function addDialogue(messages, chat) {
     for (const message of messages) {
         addMessage(message.role, message.text, new Date(message.time * 1000), chat);
     }
+}
+
+/**
+ * Send question to ai assistant
+ * @param {string} text
+ * @param {Date} time
+ * @param {number} session
+ * @returns {function} check the availability of the request result
+ * @throws {Error}
+ */
+async function sendQuestion(text, time, session) {
+    try {
+        const response = await requestForAssistant(text, time, session);
+        if (response.status == "queue") {
+            // eslint-disable-next-line no-console
+            console.log("id of request:", response.id);
+            return await waitForResult(response.id);
+        } else if (response.status == "request_limit") {
+            return {status: response.status};
+        } else {
+            // eslint-disable-next-line no-console
+            console.log("error:", response.status);
+            throw Error("invalid status of answer");
+        }
+    } catch (error) {
+        // eslint-disable-next-line no-console
+        console.log("error", error);
+        throw error;
+    }
+}
+
+/**
+ * Check the availability of the request result
+ * @param {number} id
+ */
+async function waitForResult(id) {
+    const interval = 2000;
+    const maxWaitingTime = 30000;
+    const startTime = Date.now();
+    while (Date.now() - startTime < maxWaitingTime) {
+        // eslint-disable-next-line no-console
+        console.log("checkStatus start");
+        const response = await checkStatus(id);
+        // eslint-disable-next-line no-console
+        console.log("checkStatus end");
+        if (response.status === 'completed') {
+            return {
+                status: 'success',
+                answer: response.answer,
+                answertime: response.answertime
+            };
+        } else if (response.status === 'failed') {
+            throw new Error('Request failed');
+        } else if (response.status === 'request_limit') {
+            return {status: 'request_limit'};
+        }
+        await new Promise(resolve => setTimeout(resolve, interval));
+    }
+    throw new Error('Request timeout');
 }

@@ -52,5 +52,13 @@ if ($hassiteconfig) {
             '',
             PARAM_TEXT
         ));
+
+        $settings->add(new admin_setting_configtext(
+            'block_aiassistant/userlimit', 
+            get_string('userlimit', 'block_aiassistant'),
+            get_string('userlimitdesc', 'block_aiassistant'),
+            5,
+            PARAM_INT
+        ));
     }
 }

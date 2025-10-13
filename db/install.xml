@@ -6,15 +6,19 @@
             <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true" COMMENT="Primary key"/>
             <FIELD NAME="session_id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="Current conversation identifier"/>
             <FIELD NAME="question" TYPE="text" NOTNULL="true" SEQUENCE="false" COMMENT="The text sent by user"/>
-            <FIELD NAME="answer" TYPE="text" NOTNULL="true" SEQUENCE="false" COMMENT="The text sent by ai assistant"/>
+            <FIELD NAME="answer" TYPE="text" NOTNULL="false" SEQUENCE="false" DEFAULT="NULL" COMMENT="The text sent by ai assistant"/>
             <FIELD NAME="question_time" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="Time when the user sent the message"/>
-            <FIELD NAME="answer_time" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="Time when the ai assistant sent the message"/>
+            <FIELD NAME="answer_time" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false" DEFAULT="0" COMMENT="Time when the ai assistant sent the message"/>
+            <FIELD NAME="priority" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" DEFAULT="0" COMMENT="Shows the importance of the task"/>
+            <FIELD NAME="status" TYPE="text" NOTNULL="true" SEQUENCE="false" COMMENT="queue, processing, completed, failed"/>
         </FIELDS>
         <KEYS>
             <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
             <KEY NAME="session" TYPE="foreign" FIELDS="session_id" REFTABLE="block_aiassistant_session" REFFIELDS="id"/>
         </KEYS>
     </TABLE>
+
+
 
     <TABLE NAME="block_aiassistant_session" COMMENT="Store information about session">
           <FIELDS>

@@ -38,3 +38,5 @@ $string['errormessage'] = 'An error occured while processing the request. Please
 $string['newchat'] = 'New chat';
 $string['pluginheading'] = 'Heading';
 $string['pluginname'] = 'AI assistant';
+$string['userlimit'] = 'User request limit';
+$string['userlimitdesc'] = 'Number of request that can be sent by one user per day';

@@ -57,18 +57,17 @@ class aiassistant{
     }
 
     function make_request($messages){
-        $this->data['messages'] = $messages;
-        error_log("messages text " . $messages[0]['text']);
-        error_log("ai assistant question:". print_r($this->data, true));
         $curl = new \curl();
         $curl->setHeader([
             'Authorization: Api-Key ' . $this->apikey,
             'Content-Type: application/json',
             ]
         );
+        $request_data = $this->data;
+        $request_data['messages'] = $messages;
         $response = $curl->post(
             'https://llm.api.cloud.yandex.net/foundationModels/v1/completion',
-            json_encode($this->data),
+            json_encode($request_data),
         );
         $info = $curl->get_info();
         $httpcode = $info['http_code'];
@@ -87,8 +86,6 @@ class aiassistant{
         }
         else{
             $answer = json_decode($response, true)['result']['alternatives'][0]['message'];
-            error_log("ai assistant answer:". print_r(json_decode($response, true), true));
-            array_push($this->data['messages'], $answer);
             return $answer;
         }
     }

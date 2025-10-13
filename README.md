@@ -27,6 +27,36 @@ Alternatively, you can run
 
 to complete the installation from the command line.
 
+To use plagin you also need start /aiassistant/cli/worker.php.
+To do this using the systemd:
+1. Create file 
+    /etc/systemd/system/moodle-ai-worker.service
+
+and add to it
+
+    [Unit]
+    Description=Moodle AI Assistant Worker
+    After=network.target mysql.service (your_server).service
+
+    [Service]
+    Type=simple
+    User=www-data
+    Group=www-data
+    WorkingDirectory=(path_to_moodel)
+    ExecStart=/usr/bin/php /path_to_moodle/blocks/aiassistant/cli/worker>
+    Restart=always
+    RestartSec=5
+    StandardOutput=journal
+    StandardError=journal
+
+    [Install]
+    WantedBy=multi-user.target
+2. 
+    sudo systemctl daemon-reload
+    sudo systemctl start moodle-ai-worker.service
+    sudo systemctl status moodle-ai-worker.service
+
+
 ## License ##
 
 2025 Ekaterina Vasileva <kat.vus8@gmail.com>

@@ -12,3 +12,12 @@ export const requestForAssistant = (
         sessionid
     },
 }])[0];
+
+export const checkStatus = (
+    id
+) => call([{
+    methodname: 'block_aiassistant_check_status',
+    args: {
+        id
+    },
+}])[0];

@@ -31,45 +31,51 @@ use core_external\external_api;
 use core_external\external_function_parameters;
 use core_external\external_value;
 use core_external\external_single_structure;
-use core_external\external_multiple_structure;
 
-class history extends external_api {
+use block_aiassistant\aiassistant;
+
+use \moodle_exception;
+
+class check_status extends external_api {
     public static function execute_parameters() {
         return new external_function_parameters([
-            'sessionid' => new external_value(PARAM_INT, 'Session ID'),
+            'id' => new external_value(PARAM_INT, 'ID of request')
         ]);
     }
 
-    public static function execute($sessionid) {
-        global $DB, $USER;
+    public static function execute($id) {
+        global $USER, $DB;
 
         $params = self::validate_parameters(self::execute_parameters(), [
-            'sessionid' => $sessionid,
+            'id' => $id
         ]);
-
         $context = \context_user::instance($USER->id);
         self::validate_context($context);
         require_capability('block/aiassistant:ownaction', $context);
 
-        $message = [];
-        $history = $DB->get_records('block_aiassistant_messages', ['session_id' => $params['sessionid']]);
-        foreach ($history as $record){
-            array_push($message, 
-            ['role' => 'user', 'text' => $record->question, 'time' => $record->question_time], 
-            ['role' => 'assistant', 'text' => $record->answer, 'time' => $record->question_time] 
-            );
+        $record = $DB->get_record(
+            "block_aiassistant_messages", 
+            ['id' => $params['id']],
+            'id, status, answer, answer_time',
+        );
+        if ('status' !== 'completed') {
+            return ['status' => $record->status];
         }
-        return $message;
+        else {
+            return [
+                'status' => $record->status,
+                'answer' => $record->answer,
+                'answertime' => $record->answer_time
+            ];
+        }
     }
 
     public static function execute_returns() {
-        return new external_multiple_structure(
-            new external_single_structure([
-                'role' => new external_value(PARAM_TEXT, 'Who is the author: user or assistant'),
-                'text' => new external_value(PARAM_TEXT, 'Message'),
-                'time' => new external_value(PARAM_INT, 'When the message was send'),
-            ]),
-            'Messages in session'
-        );
+        return new external_single_structure([
+            'status' => new external_value(PARAM_TEXT, 'Status of answer'),
+            'answer' => new external_value(PARAM_TEXT, 'AI answer', VALUE_OPTIONAL),
+            'answertime' => new external_value(PARAM_INT, 'Time of the answer', VALUE_OPTIONAL)
+        ]);
     }
+
 }
