@@ -60,5 +60,15 @@ if ($hassiteconfig) {
             5,
             PARAM_INT
         ));
+
+        $settings->add(new admin_setting_heading(
+            'block_aiassistant/priotitymanagment',
+            get_string('prioritymanagement', 'block_aiassistant'),
+            html_writer::link(
+                new moodle_url('/blocks/aiassistant/admin_priority.php'),
+                get_string('managepriorities', 'block_aiassistant'),
+                ['class' => 'transition-button']
+            )
+        ));
     }
 }

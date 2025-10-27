@@ -4,8 +4,6 @@ import {getSession} from './session';
 import {loadHistory} from './history';
 
 export const init = (instanceid) => {
-    // eslint-disable-next-line no-console
-    console.log("⚡ INIT WORK");
     const parent = document.querySelector(`[class="footer"][data-instance-id="${instanceid}"]`);
     const submitButton = parent.querySelector('[data-action="submit"]');
     const textarea = parent.querySelector('[data-region="input"]');
@@ -98,6 +96,8 @@ export const init = (instanceid) => {
  * @param {*} chat a message is added here
  */
 async function addMessage(role, text, time, chat) {
+    // eslint-disable-next-line no-console
+    console.log("add message", text);
     const {html, js} = await renderForPromise('block_aiassistant/messages', {
             role: role,
             text: text,
@@ -163,7 +163,7 @@ async function waitForResult(id) {
         console.log("checkStatus start");
         const response = await checkStatus(id);
         // eslint-disable-next-line no-console
-        console.log("checkStatus end");
+        console.log("checkStatus end", response.answer);
         if (response.status === 'completed') {
             return {
                 status: 'success',

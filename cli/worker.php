@@ -13,7 +13,7 @@ while (true) {
         $sql = "SELECT id, session_id, question
         FROM {block_aiassistant_messages} 
         WHERE status = ?
-        ORDER BY question_time ASC";
+        ORDER BY priority DESC, question_time ASC";
         $params = ['queue'];
         $need_execute = $DB->get_records_sql($sql, $params, 0, MAX_CONCURRENT_REQUEST - $work_request);
         if (empty($need_execute)) {

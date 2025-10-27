@@ -58,7 +58,7 @@ class check_status extends external_api {
             ['id' => $params['id']],
             'id, status, answer, answer_time',
         );
-        if ('status' !== 'completed') {
+        if ($record->status !== 'completed') {
             return ['status' => $record->status];
         }
         else {
