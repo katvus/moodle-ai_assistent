@@ -35,7 +35,21 @@ function execute($request_info) {
     $apikey = get_config('block_aiassistant', 'apikey');
     $catalog_id = get_config('block_aiassistant', 'catalogid');
     $ai = new aiassistant($apikey, $catalog_id);
-    $message = [];
+
+    $record = $DB->get_record("block_aiassistant_session", ['id' => $request_info->session_id]);
+    $context = \context::instance_by_id($record->context_id); 
+    $blockinstanceid = $context->instanceid;
+
+    $instance = $DB->get_record('block_instances', array('id' => $blockinstanceid));
+    $config_data = unserialize(base64_decode($instance->configdata));
+    $teacher_material = $config_data->teachermaterial ?? '';
+
+    if (!empty(trim($teacher_material))){
+        $message = [['role' => 'system', 'text' => $teacher_material]];
+    }
+    else {
+        $message = [];
+    }
 
     try {
         $sql = "SELECT id, question, answer

@@ -11,7 +11,7 @@ export const init = (instanceid) => {
     const newChatButton = document.querySelector(`[data-action="new-chat"][data-instance-id="${instanceid}"]`);
 
     let session = null;
-    const promise = getSession();
+    const promise = getSession(instanceid);
     promise.done(function(sessionInfo) {
         session = sessionInfo.sessionid;
         // eslint-disable-next-line no-console
@@ -77,7 +77,7 @@ export const init = (instanceid) => {
 
     newChatButton.addEventListener('click', () => {
         chat.textContent = '';
-        const promise = getSession(true);
+        const promise = getSession(instanceid, true);
         promise.done(function(sessionInfo) {
             session = sessionInfo.sessionid;
             // eslint-disable-next-line no-console
@@ -117,7 +117,11 @@ async function addMessage(role, text, time, chat) {
  */
 async function addDialogue(messages, chat) {
     for (const message of messages) {
-        addMessage(message.role, message.text, new Date(message.time * 1000), chat);
+        if (message.text !== null) {
+            addMessage(message.role, message.text, new Date(message.time * 1000), chat);
+        } else {
+            addMessage(message.role, 'Error', new Date(message.time * 1000), chat);
+        }
     }
 }
 

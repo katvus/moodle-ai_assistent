@@ -35,14 +35,16 @@ use core_external\external_single_structure;
 class session extends external_api {
     public static function execute_parameters() {
         return new external_function_parameters([
+            'instanceid' => new external_value(PARAM_INT, 'Block instance ID'),
             'isNew' => new external_value(PARAM_BOOL, 'Need to start new session or continue previous one', VALUE_DEFAULT, false),
         ]);
     }
 
-    public static function execute($isNew) {
+    public static function execute($instanceid, $isNew) {
         global $DB, $USER;
 
         $params = self::validate_parameters(self::execute_parameters(), [
+            'instanceid' => $instanceid,
             'isNew' => $isNew,
         ]);
 
@@ -50,11 +52,12 @@ class session extends external_api {
         self::validate_context($context);
         require_capability('block/aiassistant:ownaction', $context);
 
+        $block_context = \context_block::instance($params['instanceid']);
         $active = $DB->get_record(
             'block_aiassistant_session', 
             [
                 'user_id' => $USER->id,
-                'context_id' => $context->id,
+                'context_id' => $block_context->id,
                 'status' => 1
             ],
             'id'
@@ -65,7 +68,7 @@ class session extends external_api {
                 'block_aiassistant_session', 
                 [
                 'user_id' => $USER->id,
-                'context_id' => $context->id,
+                'context_id' => $block_context->id,
                 'status' => 1
                 ]
             );
@@ -77,7 +80,7 @@ class session extends external_api {
                     'block_aiassistant_session', 
                     [
                     'user_id' => $USER->id,
-                    'context_id' => $context->id,
+                    'context_id' => $block_context->id,
                     'status' => 1
                     ]
                 );

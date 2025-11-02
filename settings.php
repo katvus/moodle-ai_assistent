@@ -61,6 +61,14 @@ if ($hassiteconfig) {
             PARAM_INT
         ));
 
+        $setting->set_validate_function(function($value) {
+            $value = (int)$value;
+            if ($value < 0) {
+                return get_string('userlimiterror', 'block_aiassistant');
+            }
+            return true;
+        });
+
         $settings->add(new admin_setting_heading(
             'block_aiassistant/priotitymanagment',
             get_string('prioritymanagement', 'block_aiassistant'),

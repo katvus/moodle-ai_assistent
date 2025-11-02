@@ -1,8 +1,7 @@
 # ai assistant #
 
-TO-DO Describe the plugin shortly here.
-
-TO-DO Provide more detailed description here.
+This plagin allow you to create a chat with the YandexGPT in the Moodle.
+You will need a YandexCloud account and [API key](https://yandex.cloud/ru/docs/iam/concepts/authorization/api-key) to use it.  
 
 ## Installing via uploaded ZIP file ##
 
@@ -51,10 +50,11 @@ and add to it
 
     [Install]
     WantedBy=multi-user.target
-2. 
+2.```
     sudo systemctl daemon-reload
     sudo systemctl start moodle-ai-worker.service
     sudo systemctl status moodle-ai-worker.service
+```
 
 
 ## License ##

@@ -25,6 +25,7 @@
 
 defined('MOODLE_INTERNAL') || die();
 
+$string['addmaterial'] = "Extra educational material";
 $string['addtext'] = 'Input text';
 $string['adminpageheading'] = 'AI assistant settings';
 $string['aiassistant:addinstance'] = 'Add an AI assistant block';
@@ -40,5 +41,7 @@ $string['prioritymanagement'] = 'API priority managment';
 $string['newchat'] = 'New chat';
 $string['pluginheading'] = 'Heading';
 $string['pluginname'] = 'AI assistant';
+$string['teachermaterial'] = 'Text';
 $string['userlimit'] = 'User request limit';
 $string['userlimitdesc'] = 'Number of request that can be sent by one user per day';
+$string['userlimiterror'] = 'Number of request can\'t be negative';
