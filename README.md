@@ -3,6 +3,23 @@
 This plagin allow you to create a chat with the YandexGPT in the Moodle.
 You will need a YandexCloud account and [API key](https://yandex.cloud/ru/docs/iam/concepts/authorization/api-key) to use it.  
 
+![hello_aiassistant](images/hello.png)
+
+
+# Block settings
+
+The global block settings can be found by going to Site Administration > Plugins > Blocks > AI assistant settings. 
+- **Heading**
+- **API key** - required parameter
+- **Catalog ID**  - required parameter
+- **User request limit** - limit on the number of messages per day
+- **Message length** - the maximum possible length of a single message
+- **Course context** - transmit the following course information to the assistant. "You assistant in course: {course_name}  Description of course: {course_summary}"
+- **Manage priorities** - you can set a higher priority for requests and they will be executed first
+
+You also can set additional materials for a specific instance of the assistant: Edit mode > Three dots on top > Configure AI assistant block > Extra additional material.
+
+
 ## Installing via uploaded ZIP file ##
 
 1. Log in to your Moodle site as an admin and go to _Site administration >

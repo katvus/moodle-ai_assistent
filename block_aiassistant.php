@@ -38,25 +38,31 @@ class block_aiassistant extends block_base {
         if (get_config('block_aiassistant', 'apikey') == '' or get_config('block_aiassistant', 'catalogid') == ''){
             $this->content->text = get_string('emptyfield', 'block_aiassistant');
         }
-        else {
-            $this->page->requires->js_call_amd('block_aiassistant/chat', 'init', ['instanceid' => $this->instance->id]);
-            $this->content->text = html_writer::tag('button', get_string('newchat', 'block_aiassistant'), 
-            ['type' => 'button', 'data-action' =>'new-chat', 'data-instance-id' => $this->instance->id]);
+        else { 
+            if (get_config('block_aiassistant', 'userlimit') < 0 or get_config('block_aiassistant', 'textarealimit') < 0 ) {
+                $this->content->text = get_string('negativefield', 'block_aiassistant');
+            } 
+            else {
+                $this->page->requires->js_call_amd('block_aiassistant/chat', 'init', ['instanceid' => $this->instance->id]);
+                $this->content->text = html_writer::tag('button', get_string('newchat', 'block_aiassistant'), 
+                ['type' => 'button', 'data-action' =>'new-chat', 'data-instance-id' => $this->instance->id]);
 
-            $this->content->text .= html_writer::div(
-                '', 
-                'chat', 
-                [
-                    'data-role' => 'chat',
-                    'id' => 'chat-' . $this->instance->id . '-' . $USER->id,
-                    'data-user-id' => $USER->id,
-                    'data-instance-id' => $this->instance->id
-                ]
-            );
-            $this->content->footer = $OUTPUT->render_from_template('block_aiassistant/footer', [
-                'instance' => $this->instance->id,
-                'user' => $USER->id
-            ]);
+                $this->content->text .= html_writer::div(
+                    '', 
+                    'chat', 
+                    [
+                        'data-role' => 'chat',
+                        'id' => 'chat-' . $this->instance->id . '-' . $USER->id,
+                        'data-user-id' => $USER->id,
+                        'data-instance-id' => $this->instance->id
+                    ]
+                );
+                $this->content->footer = $OUTPUT->render_from_template('block_aiassistant/footer', [
+                    'instance' => $this->instance->id,
+                    'user' => $USER->id,
+                    'textarealimit' => get_config('block_aiassistant', 'textarealimit')
+                ]);
+            }
         }
         return $this->content;
     }

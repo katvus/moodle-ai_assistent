@@ -19,23 +19,18 @@
 
     Template purpose and description.
 
-    Classes required for JS:
-    * none
-
-    Data attributes required for JS:
-    * none
-
     Context variables required for this template:
     * none
 
     Example context (json):
     {
     'instance' => $instance,
-    'user' => $user
+    'user' => $user,
+    'textarealimit' => $limit
     }
 }}
 
 <div class = 'footer' id = 'footer-{{instance}}-{{user}}' data-instance-id= {{instance}}>
-    <textarea name='input_text' data-region = 'input' placeholder = '{{#str}}addtext, block_aiassistant{{/str}}'></textarea> 
+    <textarea name='input_text' maxlength = {{textarealimit}} data-region = 'input' placeholder = '{{#str}}addtext, block_aiassistant{{/str}}'></textarea> 
     <button type = 'submit' data-action = 'submit'></button>
 </div>

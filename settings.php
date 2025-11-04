@@ -61,13 +61,20 @@ if ($hassiteconfig) {
             PARAM_INT
         ));
 
-        $setting->set_validate_function(function($value) {
-            $value = (int)$value;
-            if ($value < 0) {
-                return get_string('userlimiterror', 'block_aiassistant');
-            }
-            return true;
-        });
+        $settings->add(new admin_setting_configtext(
+            'block_aiassistant/textarealimit', 
+            get_string('textarealimit', 'block_aiassistant'),
+            get_string('textarealimitdesc', 'block_aiassistant'),
+            100,
+            PARAM_INT
+        ));
+
+        $settings->add(new admin_setting_configcheckbox(
+            'block_aiassistant/coursecontext', 
+            get_string('coursecontext', 'block_aiassistant'),
+            get_string('coursecontextdesc', 'block_aiassistant'),
+            1
+        ));
 
         $settings->add(new admin_setting_heading(
             'block_aiassistant/priotitymanagment',

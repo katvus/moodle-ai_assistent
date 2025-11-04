@@ -35,6 +35,7 @@ function execute($request_info) {
     $apikey = get_config('block_aiassistant', 'apikey');
     $catalog_id = get_config('block_aiassistant', 'catalogid');
     $ai = new aiassistant($apikey, $catalog_id);
+    $message = [];
 
     $record = $DB->get_record("block_aiassistant_session", ['id' => $request_info->session_id]);
     $context = \context::instance_by_id($record->context_id); 
@@ -44,11 +45,27 @@ function execute($request_info) {
     $config_data = unserialize(base64_decode($instance->configdata));
     $teacher_material = $config_data->teachermaterial ?? '';
 
-    if (!empty(trim($teacher_material))){
-        $message = [['role' => 'system', 'text' => $teacher_material]];
+    if (get_config('block_aiassistant', 'coursecontext') === '1'){
+        $course_context = $context->get_course_context();
+        $course = $DB->get_record('course', ['id' => $course_context->instanceid]);
+        $clean_text = strip_tags(format_text(
+            $course->summary, 
+            $course->summaryformat, 
+            ['context' => $course_context, 'noclean' => false]
+        ));
+        $course_info = "You assistant in course: " . $course->fullname;
+        if (!empty(trim($clean_text))){
+            $course_info = $course_info . " Description of course: " .   $clean_text;
+        }
+        array_push($message, 
+            ['role' => 'system', 'text' => $course_info]
+        );
     }
-    else {
-        $message = [];
+
+    if (!empty(trim($teacher_material))){
+        array_push($message, 
+            ['role' => 'system', 'text' => $teacher_material]
+        );
     }
 
     try {
