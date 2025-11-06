@@ -1,7 +1,7 @@
 # ai assistant #
 
-This plagin allow you to create a chat with the YandexGPT in the Moodle.
-You will need a YandexCloud account and [API key](https://yandex.cloud/ru/docs/iam/concepts/authorization/api-key) to use it.  
+This plagin allow you to create a chat with the YandexGPT or GigaChat in the Moodle.
+You will need a YandexCloud account and [API key](https://yandex.cloud/ru/docs/iam/concepts/authorization/api-key) to use YandexGPT or personal account with SberID and [Authorization key](https://developers.sber.ru/docs/ru/gigachat/quickstart/ind-using-api) to use GigaChat.  
 
 ![hello_aiassistant](images/hello.png)
 
@@ -10,8 +10,10 @@ You will need a YandexCloud account and [API key](https://yandex.cloud/ru/docs/i
 
 The global block settings can be found by going to Site Administration > Plugins > Blocks > AI assistant settings. 
 - **Heading**
-- **API key** - required parameter
-- **Catalog ID**  - required parameter
+- **Type AI** - Select YandexGPT or GigaChat
+- **API key** - required parameter YandexGPT
+- **Catalog ID**  - required parameter YandexGPT
+- **Authorization key** - required parameter GigaChat
 - **User request limit** - limit on the number of messages per day
 - **Message length** - the maximum possible length of a single message
 - **Course context** - transmit the following course information to the assistant. "You assistant in course: {course_name}  Description of course: {course_summary}"
@@ -71,7 +73,7 @@ and add to it
     sudo systemctl daemon-reload
     sudo systemctl start moodle-ai-worker.service
     sudo systemctl status moodle-ai-worker.service
-```
+ ```
 
 
 ## License ##

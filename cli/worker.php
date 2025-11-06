@@ -1,7 +1,10 @@
 <?php
 DEFINE('CLI_SCRIPT', true);
 require_once(__DIR__ . '/../../../config.php');
-use block_aiassistant\aiassistant;
+require_once(__DIR__ . '/../classes/aiassistant.php');
+require_once(__DIR__ . '/../classes/gigachat_assistant.php');
+use block_aiassistant\gigachat_assistant;
+use block_aiassistant\yandex_assistant;
 
 const MAX_CONCURRENT_REQUEST = 10;
 const POLLING_PERIOD = 3;
@@ -28,14 +31,23 @@ while (true) {
     }
 }
 
+function add_message(&$array, $role, $text, $assistant) {
+    if ($assistant === 'yandex') {
+        array_push($array, ['role' => $role, 'text' => $text]);
+    }
+    else {
+        array_push($array, ['role' => $role, 'content' => $text]);
+    }
+}
+
 function execute($request_info) {
-    error_log("execute");
     global $work_request, $DB;
     $work_request++;
-    $apikey = get_config('block_aiassistant', 'apikey');
-    $catalog_id = get_config('block_aiassistant', 'catalogid');
-    $ai = new aiassistant($apikey, $catalog_id);
     $message = [];
+    $ai_provider = $DB->get_field('config_plugins', 'value', [
+        'plugin' => 'block_aiassistant', 
+        'name' => 'selectai'
+    ]);
 
     $record = $DB->get_record("block_aiassistant_session", ['id' => $request_info->session_id]);
     $context = \context::instance_by_id($record->context_id); 
@@ -44,6 +56,7 @@ function execute($request_info) {
     $instance = $DB->get_record('block_instances', array('id' => $blockinstanceid));
     $config_data = unserialize(base64_decode($instance->configdata));
     $teacher_material = $config_data->teachermaterial ?? '';
+    $course_info = '';
 
     if (get_config('block_aiassistant', 'coursecontext') === '1'){
         $course_context = $context->get_course_context();
@@ -57,15 +70,24 @@ function execute($request_info) {
         if (!empty(trim($clean_text))){
             $course_info = $course_info . " Description of course: " .   $clean_text;
         }
-        array_push($message, 
-            ['role' => 'system', 'text' => $course_info]
-        );
     }
 
     if (!empty(trim($teacher_material))){
-        array_push($message, 
-            ['role' => 'system', 'text' => $teacher_material]
-        );
+        $course_info = $course_info . $teacher_material;
+    }
+
+    if (!empty(trim($course_info))){
+        add_message($message, 'system', $course_info, $ai_provider);
+    }
+
+    if ($ai_provider === 'yandex') {
+        $apikey = get_config('block_aiassistant', 'apikey');
+        $catalog_id = get_config('block_aiassistant', 'catalogid');
+        $ai = new yandex_assistant($apikey, $catalog_id);
+    }
+    else {
+        $authorizationkey = get_config('block_aiassistant', 'authorizationkey');
+        $ai = new gigachat_assistant($authorizationkey);
     }
 
     try {
@@ -82,17 +104,16 @@ function execute($request_info) {
         );
         $history = array_reverse($history_from_db);
         foreach ($history as $record){
-            array_push($message, 
-            ['role' => 'user', 'text' => $record->question], 
-            ['role' => 'assistant', 'text' => $record->answer] 
-            );
+            add_message($message, 'user', $record->question, $ai_provider);
+            add_message($message, 'assistant', $record->answer, $ai_provider);
         }
-        array_push($message, ['role' => 'user', 'text' => $request_info->question]);
+        add_message($message, 'user', $request_info->question, $ai_provider);
+
         $result = $ai->make_request($message);
         $time = new \DateTime();
         $answertime =  $time->getTimestamp();
 
-        $DB->set_field("block_aiassistant_messages", 'answer', $result['text'], ['id' => $request_info->id]);
+        $DB->set_field("block_aiassistant_messages", 'answer', $result, ['id' => $request_info->id]);
         $DB->set_field("block_aiassistant_messages", 'answer_time', $answertime, ['id' => $request_info->id]);
         $DB->set_field("block_aiassistant_messages", 'status', 'completed', ['id' => $request_info->id]);
 

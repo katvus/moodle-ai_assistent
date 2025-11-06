@@ -37,6 +37,17 @@ if ($hassiteconfig) {
             get_string('pluginname', 'block_aiassistant')
         ));
 
+        $settings->add(new admin_setting_configselect(
+            'block_aiassistant/selectai', 
+            get_string('selectai', 'block_aiassistant'),
+            get_string('selectaidesc', 'block_aiassistant'),
+            'yandex',
+            [
+                'yandex' => 'YandexGPT',
+                'gigachat' => 'GigaChat'
+            ]
+        ));
+
         $settings->add(new admin_setting_configtext(
             'block_aiassistant/apikey', 
             get_string('apikey', 'block_aiassistant'),
@@ -49,6 +60,14 @@ if ($hassiteconfig) {
             'block_aiassistant/catalogid', 
             get_string('catalogid', 'block_aiassistant'),
             get_string('catalogiddesc', 'block_aiassistant'),
+            '',
+            PARAM_TEXT
+        ));
+
+        $settings->add(new admin_setting_configtext(
+            'block_aiassistant/authorizationkey', 
+            get_string('authorizationkey', 'block_aiassistant'),
+            get_string('authorizationkeydesc', 'block_aiassistant'),
             '',
             PARAM_TEXT
         ));

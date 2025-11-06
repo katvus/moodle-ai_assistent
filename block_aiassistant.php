@@ -35,7 +35,7 @@ class block_aiassistant extends block_base {
 
         $this->content = new stdClass();
 
-        if (get_config('block_aiassistant', 'apikey') == '' or get_config('block_aiassistant', 'catalogid') == ''){
+        if ((get_config('block_aiassistant', 'apikey') == '' or get_config('block_aiassistant', 'catalogid') == '') and get_config('block_aiassistant', 'authorizationkey') == ''){
             $this->content->text = get_string('emptyfield', 'block_aiassistant');
         }
         else { 
