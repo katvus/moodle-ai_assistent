@@ -18,6 +18,7 @@ The global block settings can be found by going to Site Administration > Plugins
 - **Message length** - the maximum possible length of a single message
 - **Course context** - transmit the following course information to the assistant. "You assistant in course: {course_name}  Description of course: {course_summary}"
 - **Manage priorities** - you can set a higher priority for requests and they will be executed first
+- **Cache available** - add query caching 
 
 You also can set additional materials for a specific instance of the assistant: Edit mode > Three dots on top > Configure AI assistant block > Extra additional material.
 
@@ -69,11 +70,33 @@ and add to it
 
     [Install]
     WantedBy=multi-user.target
-2.```
+2.
+ ```bash
     sudo systemctl daemon-reload
     sudo systemctl start moodle-ai-worker.service
     sudo systemctl status moodle-ai-worker.service
- ```
+```
+ 3. If you want to use caching:
+
+ in python directory
+
+ ```cd /path_to_moodle/blocks/aiassistant/python```
+
+ create enviroment 
+
+ ```python -m venv venv```
+
+ and activate it
+
+```source venv/bin/activate```
+
+ add dependencies
+
+ ```pip install -r requirements.txt```
+
+ start service
+ 
+```python3 main.py```
 
 
 ## License ##

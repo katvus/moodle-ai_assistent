@@ -95,6 +95,13 @@ if ($hassiteconfig) {
             1
         ));
 
+        $settings->add(new admin_setting_configcheckbox(
+            'block_aiassistant/cacheavailable', 
+            get_string('cacheavailable', 'block_aiassistant'),
+            get_string('cacheavailabledesc', 'block_aiassistant'),
+            1
+        ));
+
         $settings->add(new admin_setting_heading(
             'block_aiassistant/priotitymanagment',
             get_string('prioritymanagement', 'block_aiassistant'),

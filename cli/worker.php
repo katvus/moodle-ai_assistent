@@ -3,6 +3,7 @@ DEFINE('CLI_SCRIPT', true);
 require_once(__DIR__ . '/../../../config.php');
 require_once(__DIR__ . '/../classes/aiassistant.php');
 require_once(__DIR__ . '/../classes/gigachat_assistant.php');
+require_once($CFG->dirroot . '/blocks/aiassistant/classes/gptcache.php');
 use block_aiassistant\gigachat_assistant;
 use block_aiassistant\yandex_assistant;
 
@@ -109,7 +110,22 @@ function execute($request_info) {
         }
         add_message($message, 'user', $request_info->question, $ai_provider);
 
-        $result = $ai->make_request($message);
+        if (get_config('block_aiassistant', 'cacheavailable') === '1') {
+            $response = check_gptcache($blockinstanceid, $request_info->question);
+            if ($response["cached"]) {
+                $result = $response["answer"];
+            }
+            else {
+                $result = $ai->make_request($message);
+                $store = store_in_gptcache($blockinstanceid, $request_info->question, $result);
+                if (!$store){
+                    error_log("error in store");
+                }
+            }
+        }
+        else {
+            $result = $ai->make_request($message);
+        }
         $time = new \DateTime();
         $answertime =  $time->getTimestamp();
 
