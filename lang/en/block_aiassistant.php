@@ -26,6 +26,9 @@
 defined('MOODLE_INTERNAL') || die();
 
 $string['addmaterial'] = "Extra educational material";
+$string['addscript'] = 'Add script';
+$string['addtask'] = 'Add tasks';
+$string['addtask_desc'] = 'Here you need add questions or assigments that the assistant will ask the student. Please use separate line for each task, they can be added with + button.';
 $string['addtext'] = 'Input text';
 $string['adminpageheading'] = 'AI assistant settings';
 $string['aiassistant:addinstance'] = 'Add an AI assistant block';
@@ -43,6 +46,7 @@ $string['coursecontextdesc'] = 'Give information about course name and descripti
 $string['emptyfield'] = 'Value of API key or Catalog ID don\'t set.';
 $string['errormessage'] = 'An error occured while processing the request. Please try again later.';
 $string['managepriorities'] = 'Manage priorities';
+$string['files'] = "Load file";
 $string['prioritymanagement'] = 'API priority managment';
 $string['negativefield'] = 'Number of request and message length can\'t be negative';
 $string['newchat'] = 'New chat';
@@ -50,6 +54,10 @@ $string['pluginheading'] = 'Heading';
 $string['pluginname'] = 'AI assistant';
 $string['selectai'] = 'Type AI';
 $string['selectaidesc'] = 'Choose AI which you want to use in this plagin';
+$string['script'] = 'Script';
+$string['scriptdefault'] = 'You\'re a tutor. After each student\'s answer, give detailed feedback based only on the context, suggest improvements and additional questions.';
+$string['task'] = 'Task';
+$string['taskscript'] = 'The following are the tasks that should be assigned to the student. Don\'t change them when you start working with them.';
 $string['teachermaterial'] = 'Text';
 $string['textarealimit'] = 'Message length';
 $string['textarealimitdesc'] = 'Maximum allowed message length';

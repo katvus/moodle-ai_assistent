@@ -89,4 +89,118 @@ class block_aiassistant extends block_base {
     public function instance_allow_multiple() { return false; }
     
     public function get_aria_role() { return 'complementary'; }
+
+    public function instance_config_save($data, $nolongerused = false) {
+        global $USER;
+ 
+        $draftitemid = $data->files ?? 0;
+        $usercontext = context_user::instance($USER->id);
+        $context = context_block::instance($this->instance->id);
+        $fs = get_file_storage();
+
+
+        $old_file = $fs->get_file(
+            $context->id,
+            'block_aiassistant',
+            'config_teachermaterial',
+            0,
+            '/',
+            'teachermaterial.txt'
+        );
+        
+        if (empty($new_text)) {
+            if ($old_file) {
+                delete_document_rag($this->instance->id, $old_file->get_id());
+                $old_file->delete();
+            }
+            return;
+        }
+        
+        $need_update = false;
+        if (!$old_file) {
+            $need_update = true;
+        } else {
+            $old_content = $old_file->get_content();
+            if ($old_content !== $new_text) {
+                $need_update = true;
+                delete_document_rag($this->instance->id, $old_file->get_id());
+                $old_file->delete();
+            }
+        }
+        
+        if ($need_update) {
+            $text_record = new stdClass();
+            $text_record->contextid = $context->id;
+            $text_record->component = 'block_aiassistant';
+            $text_record->filearea = 'config_teachermaterial';
+            $text_record->itemid = 0;
+            $text_record->filepath = '/';
+            $text_record->filename = 'teachermaterial.txt';
+            $text_record->userid = $USER->id;
+            $text_record->timecreated = time();
+            $text_record->timemodified = time();
+            
+            $new_file = $fs->create_file_from_string($text_record, $new_text);
+            
+            add_document_rag($this->instance->id, $new_file->get_id());
+        }
+
+
+
+        $oldfiles = $fs->get_area_files(
+            $context->id,
+            'block_aiassistant',
+            'config_files',
+            0,
+            '',
+            false
+        );
+
+        $newfiles = $fs->get_area_files(
+            $usercontext->id,
+            'user',
+            'draft',
+            $draftitemid,
+            '',
+            false
+        );
+
+        $old_by_name = [];
+        foreach ($oldfiles as $file) {
+            $old_by_name[$file->get_filename()] = $file;
+        }
+        
+        foreach ($newfiles as $newfile) {
+            $filename = $newfile->get_filename();
+            $file_id = $newfile->get_id();
+            
+            if (!isset($old_by_name[$filename])) {
+                error_log("new file " . $filename);
+                add_document_rag($this->instance->id, $file_id);
+            } else {
+                $oldfile = $old_by_name[$filename];
+                if ($oldfile->get_contenthash() !== $newfile->get_contenthash()) {
+                    error_log("changed file " . $filename);
+                    delete_document_rag($this->instance->id, $oldfile->get_id());
+                    add_document_rag($this->instance->id, $newfile->get_id());
+                }
+                unset($old_by_name[$filename]);
+            }
+        }
+        
+        foreach ($old_by_name as $filename => $oldfile) {
+            error_log("delete file " . $filename);
+            delete_document_rag($this->instance->id, $file_id);
+        }
+
+        file_save_draft_area_files(
+            $draftitemid,
+            $context->id,
+            'block_aiassistant',
+            'config_files',  
+            0
+        );
+
+        return parent::instance_config_save($data, $nolongerused);
+    }
 }

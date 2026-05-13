@@ -32,6 +32,48 @@ while (true) {
     }
 }
 
+function create_system_prompt($context) {
+    global $DB;
+    $blockinstanceid = $context->instanceid;
+    $instance = $DB->get_record('block_instances', array('id' => $blockinstanceid));
+    $config_data = unserialize(base64_decode($instance->configdata));
+
+    $teacher_script = $config_data->script ?? '';
+
+    if (isset($config_data->task)) {
+        $tasks = $config_data->task;
+        if (!empty($tasks)) {
+            $teacher_script = $teacher_script . "\n" . get_string('taskscript', 'block_aiassistant') . "\n";
+            foreach ($tasks as $index => $task) {
+                if (!empty(trim($task))) {
+                    $teacher_script = $teacher_script . ($index + 1) . ". " . $task . "\n";
+                }
+            }
+        }
+    }
+
+    $course_info = '';
+    if (get_config('block_aiassistant', 'coursecontext') === '1'){
+        $course_context = $context->get_course_context();
+        $course = $DB->get_record('course', ['id' => $course_context->instanceid]);
+        $clean_text = strip_tags(format_text(
+            $course->summary, 
+            $course->summaryformat, 
+            ['context' => $course_context, 'noclean' => false]
+        ));
+        $course_info = "You assistant in course: " . $course->fullname;
+        if (!empty(trim($clean_text))){
+            $course_info = $course_info . " Description of course: " .   $clean_text;
+        }
+    }
+
+    if (!empty(trim($teacher_script))){
+        $course_info = $course_info . $teacher_script;
+    }
+
+    return $course_info;
+}
+
 function add_message(&$array, $role, $text, $assistant) {
     if ($assistant === 'yandex') {
         array_push($array, ['role' => $role, 'text' => $text]);
@@ -51,34 +93,12 @@ function execute($request_info) {
     ]);
 
     $record = $DB->get_record("block_aiassistant_session", ['id' => $request_info->session_id]);
-    $context = \context::instance_by_id($record->context_id); 
+    $context = \context::instance_by_id($record->context_id);
     $blockinstanceid = $context->instanceid;
+    $system_prompt = create_system_prompt($context);
 
-    $instance = $DB->get_record('block_instances', array('id' => $blockinstanceid));
-    $config_data = unserialize(base64_decode($instance->configdata));
-    $teacher_material = $config_data->teachermaterial ?? '';
-    $course_info = '';
-
-    if (get_config('block_aiassistant', 'coursecontext') === '1'){
-        $course_context = $context->get_course_context();
-        $course = $DB->get_record('course', ['id' => $course_context->instanceid]);
-        $clean_text = strip_tags(format_text(
-            $course->summary, 
-            $course->summaryformat, 
-            ['context' => $course_context, 'noclean' => false]
-        ));
-        $course_info = "You assistant in course: " . $course->fullname;
-        if (!empty(trim($clean_text))){
-            $course_info = $course_info . " Description of course: " .   $clean_text;
-        }
-    }
-
-    if (!empty(trim($teacher_material))){
-        $course_info = $course_info . $teacher_material;
-    }
-
-    if (!empty(trim($course_info))){
-        add_message($message, 'system', $course_info, $ai_provider);
+    if (!empty(trim($system_prompt))){
+        add_message($message, 'system', $system_prompt, $ai_provider);
     }
 
     if ($ai_provider === 'yandex') {
@@ -108,7 +128,8 @@ function execute($request_info) {
             add_message($message, 'user', $record->question, $ai_provider);
             add_message($message, 'assistant', $record->answer, $ai_provider);
         }
-        add_message($message, 'user', $request_info->question, $ai_provider);
+        $current_request = use_rag($blockinstanceid, $request_info->question);
+        add_message($message, 'user', $current_request, $ai_provider);
 
         if (get_config('block_aiassistant', 'cacheavailable') === '1') {
             $response = check_gptcache($blockinstanceid, $request_info->question);
